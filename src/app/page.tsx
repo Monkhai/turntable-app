@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQuery } from '@tanstack/react-query';
 import axios from 'axios';
 
 // Type for the JSON data being sent
@@ -11,16 +11,29 @@ type JsonData = Record<string, unknown>;
 const sendJsonToTimeline = async (jsonData: JsonData) => {
   const response = await axios.post('http://localhost:3001/timeline', jsonData, {
     headers: {
-      'Content-Type': 'application/json',
-    },
+      'Content-Type': 'application/json'
+    }
   });
   return response.data;
 };
 
+const checkHealth = async () => {
+  const response = await axios.get('http://localhost:3001/health');
+  return response.data;
+};
+
 export default function Home() {
-  const [jsonInput, setJsonInput] = useState('{\n  "message": "Hello World",\n  "timestamp": "2024-01-01T00:00:00Z"\n}');
+  const [jsonInput, setJsonInput] = useState(
+    '{\n  "message": "Hello World",\n  "timestamp": "2024-01-01T00:00:00Z"\n}'
+  );
   const [isValidJson, setIsValidJson] = useState(true);
   const [parsedJson, setParsedJson] = useState<JsonData | null>(null);
+  const { data: health } = useQuery({
+    queryKey: ['health'],
+    queryFn: checkHealth
+  });
+
+  console.log(health);
 
   // TanStack Query mutation for POST request
   const mutation = useMutation({
@@ -30,7 +43,7 @@ export default function Home() {
     },
     onError: (error) => {
       console.error('Error:', error);
-    },
+    }
   });
 
   // Validate JSON input
@@ -57,7 +70,7 @@ export default function Home() {
   // Handle form submission
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
-    
+
     if (!isValidJson || !parsedJson) {
       alert('Please enter valid JSON before submitting');
       return;
@@ -71,7 +84,7 @@ export default function Home() {
       <div className="max-w-4xl mx-auto px-4">
         <div className="bg-white rounded-lg shadow-lg p-6">
           <h1 className="text-3xl font-bold text-gray-900 mb-6">JSON Timeline Editor</h1>
-          
+
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* JSON Editor */}
             <div>
@@ -83,16 +96,14 @@ export default function Home() {
                 value={jsonInput}
                 onChange={handleJsonChange}
                 className={`w-full h-64 p-4 border rounded-lg font-mono text-gray-900 text-sm resize-y ${
-                  isValidJson 
-                    ? 'border-gray-300 focus:border-blue-500 focus:ring-blue-500' 
+                  isValidJson
+                    ? 'border-gray-300 focus:border-blue-500 focus:ring-blue-500'
                     : 'border-red-300 focus:border-red-500 focus:ring-red-500'
                 }`}
                 placeholder="Enter your JSON data here..."
               />
               {!isValidJson && (
-                <p className="mt-2 text-sm text-red-600">
-                  Invalid JSON format. Please check your syntax.
-                </p>
+                <p className="mt-2 text-sm text-red-600">Invalid JSON format. Please check your syntax.</p>
               )}
             </div>
 
@@ -105,8 +116,7 @@ export default function Home() {
                   !isValidJson || mutation.isPending
                     ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
                     : 'bg-blue-600 text-white hover:bg-blue-700 focus:ring-4 focus:ring-blue-200'
-                }`}
-              >
+                }`}>
                 {mutation.isPending ? 'Sending...' : 'Send to Timeline'}
               </button>
 
@@ -118,13 +128,11 @@ export default function Home() {
                     Sending...
                   </div>
                 )}
-                
+
                 {mutation.isSuccess && (
-                  <div className="text-green-600 font-medium">
-                    ✓ Successfully sent to timeline!
-                  </div>
+                  <div className="text-green-600 font-medium">✓ Successfully sent to timeline!</div>
                 )}
-                
+
                 {mutation.isError && (
                   <div className="text-red-600 font-medium">
                     ✗ Error: {mutation.error instanceof Error ? mutation.error.message : 'Unknown error'}
@@ -151,8 +159,12 @@ export default function Home() {
               <div className="text-sm text-red-700">
                 {axios.isAxiosError(mutation.error) ? (
                   <div>
-                    <p><strong>Status:</strong> {mutation.error.response?.status}</p>
-                    <p><strong>Message:</strong> {mutation.error.message}</p>
+                    <p>
+                      <strong>Status:</strong> {mutation.error.response?.status}
+                    </p>
+                    <p>
+                      <strong>Message:</strong> {mutation.error.message}
+                    </p>
                     {mutation.error.response?.data && (
                       <div>
                         <strong>Response:</strong>
