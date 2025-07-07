@@ -57,6 +57,12 @@ export default function Home() {
           Pivot
         </button>
         <button
+          onClick={() => handleClick(TIMESLINES['360'])}
+          className="py-8 bg-blue-600 hover:bg-blue-700 text-white text-xl font-semibold rounded-lg shadow-lg transition-colors"
+        >
+          360
+        </button>
+        <button
           onClick={() => handleClick(TIMESLINES.NOTHING)}
           className="py-8 bg-blue-600 hover:bg-blue-700 text-white text-xl font-semibold rounded-lg shadow-lg transition-colors"
         >

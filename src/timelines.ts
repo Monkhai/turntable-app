@@ -63,5 +63,22 @@ export const TIMESLINES = {
       }
     }
   ],
+  360: [
+    {
+      delay: 0,
+      duration: 51,
+      params: {
+        rotate: -392,
+        easeIn: {
+          duration: 2,
+          level: 1
+        },
+        easeOut: {
+          duration: 2,
+          level: 1
+        }
+      }
+    }
+  ],
   NOTHING: []
 };
